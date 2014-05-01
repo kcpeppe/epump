@@ -45,6 +45,7 @@ public class EventPump implements Runnable {
                 try {
                     callBack.callBack(event);
                 } catch (Throwable t) {
+                    LOGGER.log(Level.WARNING, "CallBack throws an Exception", t);
                     errors.put(callBack.getSinkPoint(), t);
                 }
         }
