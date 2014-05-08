@@ -36,23 +36,28 @@ public class EPumpTest {
         }
     }
 
-//    @Test
-//    public void forgotToRegisterASink() {
-//        EventPump pump = new EventPump(new DataSource());
-//        pump.start();
-//        pump.waitForClosing();
-//        assertTrue(true);
-//    }
+    @Test
+    public void forgotToRegisterASink() {
+        EventPump pump = new EventPump(new DataSource());
+        pump.start();
+        pump.waitForClosing();
+        assertTrue(true);
+    }
 
-//    @Test
-//    public void SinkThrowsException() throws Throwable {
-//        exception.expect(ArithmeticException.class);
-//        ThrowsDivideByZeroQuery badQuery = new ThrowsDivideByZeroQuery();
-//        EventPump pump = new EventPump(new DataSource());
-//        pump.registerSinkPoint(badQuery);
-//        pump.start();
-//        pump.waitForClosing();
+    /**
+     * the guard reports on and then eats the exception.. no exceptions are thrown
+     * the exceptions should some how be retrievable from the pump.
+     */
+    @Test
+    public void SinkThrowsException() throws Throwable {
+        //exception.expect(ArithmeticException.class);
+        ThrowsDivideByZeroQuery badQuery = new ThrowsDivideByZeroQuery();
+        EventPump pump = new EventPump(new DataSource());
+        pump.registerSinkPoint(badQuery);
+        pump.start();
+        pump.waitForClosing();
+        assertTrue(true); //if we've made it here no exceptions leaked into the test
 //        if ( pump.encounteredErrors())
 //            throw pump.getLastError( badQuery);
-//    }
+    }
 }
