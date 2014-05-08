@@ -9,14 +9,14 @@ import java.util.logging.Logger;
 /**
  * Crude implementation of a class that will pump events to all registered SinkPoints.
  */
-public class EventPump implements Runnable {
+public class EventPump< S extends SinkPoint> implements Runnable {
 
     private static AtomicInteger threadId= new AtomicInteger(0);
 
     private final static Logger LOGGER = Logger.getLogger(EventPump.class.getName());
 
 
-    private Map<SinkPoint,CallBack> callBacks = new ConcurrentHashMap<>();
+    private Map<S,CallBack> callBacks = new ConcurrentHashMap<>();
     private Map<SinkPoint,Throwable> errors = new ConcurrentHashMap<>();
     private EventSource eventSource;
     private Thread pump;
@@ -25,10 +25,10 @@ public class EventPump implements Runnable {
     public EventPump( EventSource source) {
         this.eventSource = source;
     }
-    public void registerSinkPoint( SinkPoint sinkPoint) {
+    public void registerSinkPoint( S sinkPoint) {
         this.callBacks.put(sinkPoint, new CallBack(sinkPoint));
     }
-    public void unregisterCallBack( SinkPoint sinkPoint) {
+    public void unregisterCallBack( S sinkPoint) {
         this.callBacks.remove(sinkPoint);
     }
 
@@ -41,13 +41,14 @@ public class EventPump implements Runnable {
         running = true;
         while( running && ! eventSource.endOfStream()) {
             Event event = eventSource.read();
-            for ( CallBack callBack : callBacks.values())
-                try {
-                    callBack.callBack(event);
-                } catch (Throwable t) {
-                    LOGGER.log(Level.WARNING, "CallBack throws an Exception", t);
-                    errors.put(callBack.getSinkPoint(), t);
-                }
+            if ( event != null)
+                for ( CallBack callBack : callBacks.values())
+                    try {
+                        callBack.callBack(event);
+                    } catch (Throwable t) {
+                        LOGGER.log(Level.WARNING, "CallBack throws an Exception", t);
+                        errors.put(callBack.getSinkPoint(), t);
+                    }
         }
     }
 
@@ -92,7 +93,7 @@ public class EventPump implements Runnable {
      * @param sinkPoint
      * @return
      */
-    public Throwable getLastError( SinkPoint sinkPoint) {
+    public Throwable getLastError( S sinkPoint) {
         return errors.get(sinkPoint);
     }
 

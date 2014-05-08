@@ -7,7 +7,7 @@ final public class CallBack<T extends SinkPoint> {
         this.sink = sink;
     }
 
-    public SinkPoint getSinkPoint() { return this.sink; }
+    public T getSinkPoint() { return this.sink; }
 
     void callBack(Event event) {
         sink.accept( event);
