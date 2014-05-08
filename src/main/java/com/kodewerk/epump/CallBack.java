@@ -1,8 +1,14 @@
 package com.kodewerk.epump;
 
+import java.util.concurrent.LinkedTransferQueue;
+
 final public class CallBack<T extends SinkPoint> {
 
+    final private LinkedTransferQueue<Event> events = new LinkedTransferQueue<>();
+
     private T sink;
+    private volatile boolean running;
+
     public CallBack( T sink) {
         this.sink = sink;
     }
@@ -13,12 +19,4 @@ final public class CallBack<T extends SinkPoint> {
         sink.accept( event);
     }
 
-    //todo: isolate the pump from unknown client behaviour with a guard thread.
-    //the client should be able to kill or block the guard thread without disturbing
-    //the pump.
-    class Guard implements Runnable {
-        public void run() {
-
-        }
-    }
 }

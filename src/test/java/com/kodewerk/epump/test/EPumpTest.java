@@ -30,27 +30,29 @@ public class EPumpTest {
             assertTrue( integerSumQuery.toString().equals("45"));
             assertTrue( longSumQuery.toString().equals("0"));
         } catch(Throwable t) {
+            System.out.println(t.getMessage());
+            t.printStackTrace();
             fail();
         }
     }
 
-    @Test
-    public void forgotToRegisterASink() {
-        EventPump pump = new EventPump(new DataSource());
-        pump.start();
-        pump.waitForClosing();
-        assertTrue(true);
-    }
+//    @Test
+//    public void forgotToRegisterASink() {
+//        EventPump pump = new EventPump(new DataSource());
+//        pump.start();
+//        pump.waitForClosing();
+//        assertTrue(true);
+//    }
 
-    @Test
-    public void SinkThrowsException() throws Throwable {
-        exception.expect(ArithmeticException.class);
-        ThrowsDivideByZeroQuery badQuery = new ThrowsDivideByZeroQuery();
-        EventPump pump = new EventPump(new DataSource());
-        pump.registerSinkPoint(badQuery);
-        pump.start();
-        pump.waitForClosing();
-        if ( pump.encounteredErrors())
-            throw pump.getLastError( badQuery);
-    }
+//    @Test
+//    public void SinkThrowsException() throws Throwable {
+//        exception.expect(ArithmeticException.class);
+//        ThrowsDivideByZeroQuery badQuery = new ThrowsDivideByZeroQuery();
+//        EventPump pump = new EventPump(new DataSource());
+//        pump.registerSinkPoint(badQuery);
+//        pump.start();
+//        pump.waitForClosing();
+//        if ( pump.encounteredErrors())
+//            throw pump.getLastError( badQuery);
+//    }
 }

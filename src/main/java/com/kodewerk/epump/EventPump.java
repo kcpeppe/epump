@@ -11,13 +11,13 @@ import java.util.logging.Logger;
  */
 public class EventPump< S extends SinkPoint> implements Runnable {
 
+    private final static Logger LOGGER = Logger.getLogger(EventPump.class.getName());
     private static AtomicInteger threadId= new AtomicInteger(0);
 
-    private final static Logger LOGGER = Logger.getLogger(EventPump.class.getName());
 
-
-    private Map<S,CallBack> callBacks = new ConcurrentHashMap<>();
+    private Map<S,Guard> guards = new ConcurrentHashMap<>();
     private Map<SinkPoint,Throwable> errors = new ConcurrentHashMap<>();
+
     private EventSource eventSource;
     private Thread pump;
     volatile private boolean running = false;
@@ -26,15 +26,14 @@ public class EventPump< S extends SinkPoint> implements Runnable {
         this.eventSource = source;
     }
     public void registerSinkPoint( S sinkPoint) {
-        this.callBacks.put(sinkPoint, new CallBack(sinkPoint));
-    }
-    public void unregisterCallBack( S sinkPoint) {
-        this.callBacks.remove(sinkPoint);
+        this.guards.put(sinkPoint, new Guard(new CallBack(sinkPoint)));
     }
 
-    /**
-     * todo: Error maybe due to EventSource, or thread handling
-     */
+    public void unregisterCallBack( S sinkPoint) {
+        Guard guard = this.guards.remove(sinkPoint);
+        guard.shutdown();
+    }
+
     public void run() {
 
         errors.clear();
@@ -42,13 +41,16 @@ public class EventPump< S extends SinkPoint> implements Runnable {
         while( running && ! eventSource.endOfStream()) {
             Event event = eventSource.read();
             if ( event != null)
-                for ( CallBack callBack : callBacks.values())
+                for ( Guard guard : guards.values())
                     try {
-                        callBack.callBack(event);
+                        guard.accept(event);
                     } catch (Throwable t) {
                         LOGGER.log(Level.WARNING, "CallBack throws an Exception", t);
-                        errors.put(callBack.getSinkPoint(), t);
+                        errors.put(guard.getCallBack().getSinkPoint(), t);
                     }
+        }
+        for ( S sinkPoint : this.guards.keySet()) {
+            unregisterCallBack( sinkPoint);
         }
     }
 
@@ -88,7 +90,7 @@ public class EventPump< S extends SinkPoint> implements Runnable {
 
     /**
      * not putting too much effort here for the moment as the
-     * prefered mechanisum is to use a guard thread. However,
+     * preferred mechanism is to use a guard thread. However,
      * errors should be passed back to the client.
      * @param sinkPoint
      * @return

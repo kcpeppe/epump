@@ -7,6 +7,49 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Kodewerk Ltd.</name>
+        <url>http://www.kodewerk.com</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>kcpeppe</id>
+            <name>Kirk Pepperdine</name>
+            <email>kirk@kodewerk.com</email>
+            <url>http://www.kodewerk.com</url>
+            <organization>Kodewerk Ltd.</organization>
+            <organizationUrl>http://www.kodewerk.com</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>John</id>
+            <name>John Oliver</name>
+            <email>john@jclarity.com</email>
+            <url>http://www.jclarity.com</url>
+            <organization>JClarity Ltd.</organization>
+            <organizationUrl>http://www.jclarity.com</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+0</timezone>
+        </developer>
+    </developers>
+
   <name>Event Pump</name>
   <url>http://maven.apache.org</url>
 
