@@ -16,7 +16,7 @@ public class EventPump< S extends SinkPoint> implements Runnable {
 
 
     private Map<S,Guard> guards = new ConcurrentHashMap<S,Guard>();
-    private Throwable exception = null;
+    private volatile Throwable exception = null;
 
     private EventSource eventSource;
     private Thread pump;
@@ -63,7 +63,7 @@ public class EventPump< S extends SinkPoint> implements Runnable {
         try {
             pump.join();
             for ( S sinkPoint : this.guards.keySet()) {
-                exception = this.guards.get( sinkPoint).getLastException();
+                setException(this.guards.get( sinkPoint).getLastException());
                 unregisterCallBack( sinkPoint);
             }
         } catch (InterruptedException ie) {
@@ -74,15 +74,13 @@ public class EventPump< S extends SinkPoint> implements Runnable {
 
     //todo: ugly and won't work in edge cases.
     public void shutdown() {
-        if ( running == false) return;
-
         running = false;
-        try {
-            pump.join();
-        } catch (InterruptedException ie) {
-            LOGGER.log(Level.WARNING, ie.getMessage(), ie);
-        }
+        waitForClosing();
     }
 
+    private void setException( EventPumpException e) {
+        if ( e == null) return;
+        exception = e;
+    }
     public Throwable getLastException() { return exception; }
 }

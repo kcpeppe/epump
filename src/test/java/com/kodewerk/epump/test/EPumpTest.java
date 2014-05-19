@@ -57,28 +57,28 @@ public class EPumpTest {
         pump.registerSinkPoint(badQuery);
         pump.start();
         pump.waitForClosing();
-        assertTrue( pump.getLastException() != null);
+        assertTrue(pump.getLastException() != null);
     }
 
-//    @Test
-//    public void slowDataSource() {
-//        try {
-//            DoubleSumQuery doubleSumQuery = new DoubleSumQuery();
-//            IntegerSumQuery integerSumQuery = new IntegerSumQuery();
-//            LongSumQuery longSumQuery = new LongSumQuery();
-//            EventPump<Query> pump = new EventPump(new SlowDataSource());
-//            pump.registerSinkPoint(doubleSumQuery);
-//            pump.registerSinkPoint(integerSumQuery);
-//            pump.start();
-//            pump.waitForClosing();
-//            assertTrue( doubleSumQuery.toString().equals("22.5"));
-//            assertTrue( integerSumQuery.toString().equals("45"));
-//            assertTrue( longSumQuery.toString().equals("0"));
-//            assertTrue( pump.getLastException() == null);
-//        } catch(Throwable t) {
-//            System.out.println(t.getMessage());
-//            t.printStackTrace();
-//            fail();
-//        }
-//    }
+    @Test
+    public void slowDataSource() {
+        try {
+            DoubleSumQuery doubleSumQuery = new DoubleSumQuery();
+            IntegerSumQuery integerSumQuery = new IntegerSumQuery();
+            LongSumQuery longSumQuery = new LongSumQuery();
+            EventPump<Query> pump = new EventPump(new SlowDataSource());
+            pump.registerSinkPoint(doubleSumQuery);
+            pump.registerSinkPoint(integerSumQuery);
+            pump.start();
+            pump.waitForClosing();
+            assertTrue( doubleSumQuery.toString().equals("22.5"));
+            assertTrue( integerSumQuery.toString().equals("45"));
+            assertTrue( longSumQuery.toString().equals("0"));
+            assertTrue( pump.getLastException() == null);
+        } catch(Throwable t) {
+            System.out.println(t.getMessage());
+            t.printStackTrace();
+            fail();
+        }
+    }
 }

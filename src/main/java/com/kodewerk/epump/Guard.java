@@ -14,7 +14,7 @@ public class Guard implements Runnable {
     private CallBack callBack;
     //todo: setup ThreadFactory to inject meaningful thread names
     private ExecutorService threadPool = Executors.newSingleThreadExecutor();
-    private EventPumpException exception = null;
+    private volatile EventPumpException exception = null;
 
     public Guard(CallBack callBack) {
         this.callBack = callBack;
