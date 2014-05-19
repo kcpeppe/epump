@@ -15,8 +15,8 @@ public class EventPump< S extends SinkPoint> implements Runnable {
     private static AtomicInteger threadId= new AtomicInteger(0);
 
 
-    private Map<S,Guard> guards = new ConcurrentHashMap<>();
-    private Map<SinkPoint,Throwable> errors = new ConcurrentHashMap<>();
+    private Map<S,Guard> guards = new ConcurrentHashMap<S,Guard>();
+    private Throwable exception = null;
 
     private EventSource eventSource;
     private Thread pump;
@@ -36,7 +36,6 @@ public class EventPump< S extends SinkPoint> implements Runnable {
 
     public void run() {
 
-        errors.clear();
         running = true;
         while( running && ! eventSource.endOfStream()) {
             Event event = eventSource.read();
@@ -46,11 +45,8 @@ public class EventPump< S extends SinkPoint> implements Runnable {
                         guard.accept(event);
                     } catch (Throwable t) {
                         LOGGER.log(Level.WARNING, "CallBack throws an Exception", t);
-                        errors.put(guard.getCallBack().getSinkPoint(), t);
+                        exception = t;
                     }
-        }
-        for ( S sinkPoint : this.guards.keySet()) {
-            unregisterCallBack( sinkPoint);
         }
     }
 
@@ -66,6 +62,10 @@ public class EventPump< S extends SinkPoint> implements Runnable {
     public void waitForClosing() {
         try {
             pump.join();
+            for ( S sinkPoint : this.guards.keySet()) {
+                exception = this.guards.get( sinkPoint).getLastException();
+                unregisterCallBack( sinkPoint);
+            }
         } catch (InterruptedException ie) {
             LOGGER.log(Level.WARNING, ie.getMessage(), ie);
         }
@@ -84,21 +84,7 @@ public class EventPump< S extends SinkPoint> implements Runnable {
         }
     }
 
-    public boolean encounteredErrors() {
-        return errors.size() != 0;
+    public Throwable getLastException() {
+        return exception;
     }
-
-    /**
-     * not putting too much effort here for the moment as the
-     * preferred mechanism is to use a guard thread. However,
-     * errors should be passed back to the client.
-     * @param sinkPoint
-     * @return
-     */
-    public Throwable getLastError( S sinkPoint) {
-        return errors.get(sinkPoint);
-    }
-
-
-
 }

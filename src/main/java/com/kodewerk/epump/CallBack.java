@@ -4,7 +4,7 @@ import java.util.concurrent.LinkedTransferQueue;
 
 final public class CallBack<T extends SinkPoint> {
 
-    final private LinkedTransferQueue<Event> events = new LinkedTransferQueue<>();
+    final private LinkedTransferQueue<Event> events = new LinkedTransferQueue<Event>();
 
     private T sink;
     private volatile boolean running;

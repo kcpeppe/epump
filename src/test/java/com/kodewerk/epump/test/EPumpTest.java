@@ -29,6 +29,7 @@ public class EPumpTest {
             assertTrue( doubleSumQuery.toString().equals("22.5"));
             assertTrue( integerSumQuery.toString().equals("45"));
             assertTrue( longSumQuery.toString().equals("0"));
+            assertTrue( pump.getLastException() == null);
         } catch(Throwable t) {
             System.out.println(t.getMessage());
             t.printStackTrace();
@@ -41,7 +42,7 @@ public class EPumpTest {
         EventPump pump = new EventPump(new DataSource());
         pump.start();
         pump.waitForClosing();
-        assertTrue(true);
+        assertTrue(pump.getLastException() == null);
     }
 
     /**
@@ -49,15 +50,19 @@ public class EPumpTest {
      * the exceptions should some how be retrievable from the pump.
      */
     @Test
-    public void SinkThrowsException() throws Throwable {
-        //exception.expect(ArithmeticException.class);
-        ThrowsDivideByZeroQuery badQuery = new ThrowsDivideByZeroQuery();
-        EventPump pump = new EventPump(new DataSource());
-        pump.registerSinkPoint(badQuery);
-        pump.start();
-        pump.waitForClosing();
-        assertTrue(true); //if we've made it here no exceptions leaked into the test
-//        if ( pump.encounteredErrors())
-//            throw pump.getLastError( badQuery);
+    public void SinkThrowsException() {
+        try {
+            ThrowsDivideByZeroQuery badQuery = new ThrowsDivideByZeroQuery();
+            DataSource dataSource = new DataSource();
+            EventPump pump = new EventPump(dataSource);
+            pump.registerSinkPoint(badQuery);
+            pump.start();
+            pump.waitForClosing();
+            assertTrue( pump.getLastException() != null);
+        } catch( Throwable t) {
+            System.out.println(t.getMessage());
+            t.printStackTrace();
+            System.out.println("-------------");
+        }
     }
 }

@@ -4,17 +4,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Guard implements Runnable {
 
     private final static Logger LOGGER = Logger.getLogger(Guard.class.getName());
 
-    LinkedTransferQueue<Event> events = new LinkedTransferQueue<>();
-    CallBack callBack;
+    private LinkedTransferQueue<Event> events = new LinkedTransferQueue<Event>();
+    private CallBack callBack;
     //todo: setup ThreadFactory to inject meaningful thread names
-    ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    private ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    private EventPumpException exception = null;
 
     public Guard(CallBack callBack) {
         this.callBack = callBack;
@@ -23,12 +23,20 @@ public class Guard implements Runnable {
     public CallBack getCallBack() { return callBack; }
 
     /**
+     * Last exception encounters. Maybe not be the first exception
+     * @return exception
+     */
+    public EventPumpException getLastException() { return exception; }
+
+    /**
      *
-     * @param event
+     * @param event to be processed
      */
     public void accept( Event event) {
+
         events.offer(event);
         threadPool.submit(this);
+
     }
 
     public void shutdown() {
@@ -37,11 +45,10 @@ public class Guard implements Runnable {
             if ( ! threadPool.awaitTermination( 30, TimeUnit.SECONDS))
                 threadPool.shutdownNow();
         } catch (InterruptedException e) {
-            LOGGER.log(Level.WARNING, "Exception while terminating Guard", e);
+            exception = new EventPumpException("Exception raised while terminating Guard for " + callBack.toString(), e);
             threadPool.shutdownNow();
         }
     }
-
     /**
      * todo: robust error handling
      * setup a protocol with EventPump to respond to InterruptedException
@@ -51,7 +58,7 @@ public class Guard implements Runnable {
             Event event = events.poll(1, TimeUnit.SECONDS);
             callBack.callBack(event);
         } catch( Throwable t) {
-            LOGGER.log(Level.WARNING, "CallBack throws an Exception", t);
+            exception = new EventPumpException("Exception thrown by " + callBack.toString(), t);
         }
     }
 }

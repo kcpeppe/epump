@@ -11,4 +11,5 @@ public interface EventSource {
 
     public Event read();
     public boolean endOfStream();
+
 }
