@@ -1,19 +1,17 @@
 package com.kodewerk.epump;
 
-import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Queue;
 
 final public class CallBack<T extends SinkPoint> {
 
-    final private LinkedTransferQueue<Event> events = new LinkedTransferQueue<Event>();
+    final private Queue<Event> events = new LinkedBlockingQueue<Event>();
 
     private T sink;
-    private volatile boolean running;
 
     public CallBack( T sink) {
         this.sink = sink;
     }
-
-    public T getSinkPoint() { return this.sink; }
 
     void callBack(Event event) {
         sink.accept( event);
