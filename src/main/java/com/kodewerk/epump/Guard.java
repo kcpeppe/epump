@@ -2,7 +2,7 @@ package com.kodewerk.epump;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -10,7 +10,7 @@ public class Guard implements Runnable {
 
     private final static Logger LOGGER = Logger.getLogger(Guard.class.getName());
 
-    private LinkedTransferQueue<Event> events = new LinkedTransferQueue<Event>();
+    private LinkedBlockingQueue<Event> events = new LinkedBlockingQueue<Event>();
     private CallBack callBack;
     //todo: setup ThreadFactory to inject meaningful thread names
     private ExecutorService threadPool = Executors.newSingleThreadExecutor();
