@@ -84,7 +84,5 @@ public class EventPump< S extends SinkPoint> implements Runnable {
         }
     }
 
-    public Throwable getLastException() {
-        return exception;
-    }
+    public Throwable getLastException() { return exception; }
 }
